@@ -3,33 +3,64 @@
 
       <!-- Board Title wrapper -->
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold text-indigo-600">{{ board.title }}</h2>
-        <!-- Board commands -->
-        <div class="flex">
-          <label :for="'checkbox-all-checked-' + board.id" class="flex items-center cursor-pointer gap-2 select-none">
-              <input
-                type="checkbox"
-                :id="'checkbox-all-checked-' + board.id"
-                :checked="checkBoardAllTasksCompleted()"
-                @change="markBoardAllTasksCompleted($event)"
-                class="form-checkbox h-5 w-5 transition"
-              >
-              <span>Marquer toutes comme résolues</span>
-          </label>
-          <!-- Board cannot be deleted if we have some incomplete tasks remaining -->
-          <button
-            @click="deleteBoard"
-              :disabled="!checkBoardAllTasksCompleted()"
-              :class="[
-                'text-sm px-3 py-2 rounded transition ml-4',
-                !checkBoardAllTasksCompleted()
-                  ? 'bg-red-200 text-red-400 hover:bg-red-200 cursor-not-allowed'
-                  : 'bg-red-600 text-white'
-              ]"
+
+        <template v-if="editingBoardId === board.id">
+
+          <input
+            type="text"
+            v-model="editingBoardValue"
+            @blur="updateBoard($event)"
+            @keyup.enter="updateBoard($event)"
+            @keyup.esc="cancelEditBoardAction"
+            class="border px-2 py-1 rounded w-full"
+            ref="editInput"
           >
-            Supprimer le board
+          <button
+            @click="updateBoard($event)"
+            class="flex items-center justify-center text-sm px-2"
+          >
+          Valider
           </button>
-        </div>
+          <button
+            @click="cancelEditBoardAction"
+            class="flex items-center justify-center text-sm text-red-500 px-2"
+          >
+          Annuler
+          </button>
+
+        </template>
+
+        <template v-else>
+
+          <h2 @click="editBoardAction($event)" class="text-xl font-bold text-black-900">{{ board.title }}</h2>
+          <!-- Board commands -->
+          <div class="flex">
+            <label :for="'checkbox-all-checked-' + board.id" class="flex items-center cursor-pointer gap-2 select-none" v-if="this.board.tasks.length">
+                <input
+                  type="checkbox"
+                  :id="'checkbox-all-checked-' + board.id"
+                  :checked="checkBoardAllTasksCompleted()"
+                  @change="markBoardAllTasksCompleted($event)"
+                  class="form-checkbox h-5 w-5 transition"
+                >
+                <span>Marquer toutes comme résolues</span>
+            </label>
+
+            <button
+              @click="deleteBoard"
+                :disabled="this.board.tasks.length > 0 && !this.checkBoardAllTasksCompleted()"
+                :class="[
+                  'text-sm px-3 py-2 rounded transition ml-4',
+                  this.board.tasks.length > 0 && !this.checkBoardAllTasksCompleted()
+                    ? 'bg-red-200 text-red-400 hover:bg-red-200 cursor-not-allowed'
+                    : 'bg-red-600 text-white'
+                ]"
+            >
+              Supprimer le groupe de tâches
+            </button>
+          </div>
+
+        </template>
 
       </div>
 
@@ -83,8 +114,6 @@
               </label>
             </template>
 
-
-
           </div>
 
           <!-- Task commands -->
@@ -101,7 +130,7 @@
                 v-if="taskMenuOpened === task.id"
                 class="absolute right-0 mt-2 w-32 bg-white shadow-lg rounded-lg z-10"
               >
-                <button @click="editTask(task)" class="block w-full text-sm text-left px-4 py-2 text-body hover:bg-gray-100">Éditer</button>
+                <button @click="editTaskAction(task)" class="block w-full text-sm text-left px-4 py-2 text-body hover:bg-gray-100">Éditer</button>
                 <button @click="deleteTask(task)" class="block w-full text-sm text-left px-4 py-2 text-red-600 hover:bg-gray-100">Supprimer</button>
               </div>
             </div>
@@ -111,6 +140,43 @@
         </li>
 
       </ul>
+
+      <div class="mt-4">
+
+        <template v-if="isAddingTask">
+          <div class="flex">
+             <input
+              type="text"
+              v-model="addTaskValue"
+              @blur="createBoardTask($event)"
+              @keyup.enter="createBoardTask($event)"
+              @keyup.esc="cancelAddBoardTaskAction"
+              class="border px-2 py-1 rounded w-full"
+              ref="editInput"
+            >
+            <button
+              @click="createBoardTask($event)"
+              class="flex items-center justify-center text-sm px-2"
+            >
+            Valider
+            </button>
+            <button
+              @click="cancelAddBoardTaskAction"
+              class="flex items-center justify-center text-sm text-red-500 px-2"
+            >
+            Annuler
+            </button>
+          </div>
+        </template>
+
+        <template v-else>
+          <button @click="addBoardTaskAction" class=" px-3 py-2 rounded transition ml-4 bg-gray-200 hover:bg-gray-300 text-body">
+              Ajouter une tâche
+          </button>
+        </template>
+
+      </div>
+
   </div>
 
 </template>
@@ -124,8 +190,12 @@ export default {
     return {
       boards: [],
       taskMenuOpened: null,
+      editingBoardId: null,
+      editingBoardValue: null,
       editingTaskId: null,
       editingTaskValue: null,
+      isAddingTask: false,
+      addTaskValue:null,
       canDeleteBoard: false,
     };
   },
@@ -149,7 +219,7 @@ export default {
     },
     /* Check if board tasks are completed */
     checkBoardAllTasksCompleted() {
-      return this.board.tasks.every(task => task.completed);
+      return this.board.tasks.length ? this.board.tasks.every(task => task.completed) : false;
     },
     /* Close tasks contextual menu if click outside */
     handleClickOutside(e) {
@@ -161,13 +231,55 @@ export default {
       });
       if (!clickedMenu) this.taskMenuOpened = null;
     },
+
+    /* Edit action : update board data */
+    editBoardAction() {
+      this.editingBoardId = this.board.id;
+      this.editingBoardValue = this.board.title;
+    },
+    /* Cancel task edit action */
+    cancelEditBoardAction() {
+      this.editingBoardId = null;
+      this.editingBoardValue = '';
+    },
+    /* Validate board modifications */
+    updateBoard(event) {
+      // new value
+      const newTitle = event.target.value;
+
+      this.$emit('update-board', this.board, {
+        title: newTitle
+      });
+
+      this.editingBoardId = null;
+      this.editingBoardValue = '';
+
+    },
+    addBoardTaskAction() {
+      this.isAddingTask = true;
+    },
+    cancelAddBoardTaskAction() {
+      this.isAddingTask = false;
+      this.addTaskValue = '';
+    },
     /* Edit action : when clicking on contextual menu option */
-    editTask(task) {
+    editTaskAction(task) {
       this.editingTaskId = task.id;
       this.editingTaskValue = task.title;
 
       this.taskMenuOpened = null; // close contextual menu
 
+    },
+    createBoardTask(event) {
+       // new value
+      const taskTitle = event.target.value;
+
+      this.$emit('create-board-task', this.board, {
+        title: taskTitle
+      });
+
+       this.isAddingTask = false;
+       this.addTaskValue = '';
     },
     /* Validate task modifications */
     updateTask(task, event) {
