@@ -61,3 +61,21 @@ activity-messenger/
 git clone https://github.com/ibanson/activity-messenger-demo-frontend.git
 cd activity-messenger-demo-frontend
 ```
+
+### 2. Installer les dépendances
+
+```bash
+pnpm install
+```
+
+### 3. Lancer le serveur de développement
+
+```bash
+pnpm run serve
+```
+
+## Le projet sera accessible à l’adresse :
+
+```bash
+http://localhost:8080
+```
