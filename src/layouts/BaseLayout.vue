@@ -16,9 +16,7 @@ import NavBar from '@/components/nav/NavBar.vue';
 export default {
   name: 'BaseLayout',
   components: {NavBar},
-  props: {
-    //msg: String
-  }
+  props: {}
 }
 </script>
 

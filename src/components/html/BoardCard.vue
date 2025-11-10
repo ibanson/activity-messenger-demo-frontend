@@ -22,7 +22,7 @@
           Valider
           </button>
           <button
-            @click="cancelEditBoardAction"
+            @mousedown="cancelEditBoardAction"
             class="flex items-center justify-center text-sm text-red-500 px-2"
           >
           Annuler
@@ -94,7 +94,7 @@
               Valider
               </button>
               <button
-                @click="cancelEditTask()"
+                @mousedown="cancelEditTask()"
                 class="flex items-center justify-center text-sm text-red-500 px-2"
               >
               Annuler
@@ -161,7 +161,7 @@
             Valider
             </button>
             <button
-              @click="cancelAddBoardTaskAction"
+              @mousedown="cancelAddBoardTaskAction"
               class="flex items-center justify-center text-sm text-red-500 px-2"
             >
             Annuler

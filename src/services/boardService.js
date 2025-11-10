@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://api.activitymessenger.local/v1'; // Better to put that in a .env
+const API_URL = 'http://api.activitymessenger.local/v1'; // Change with you backend API URL configuration.  You could possibly add that info in your .env file
 
 export default {
   getBoards() {
@@ -20,7 +20,6 @@ export default {
     return axios.post(`${API_URL}/boards/${boardId}/tasks`, data);
   },
   updateTask(boardId, taskId, data) {
-    console.log(boardId, taskId, data);
     return axios.patch(`${API_URL}/boards/${boardId}/tasks/${taskId}`, data);
   },
   deleteTask(boardId, taskId) {
