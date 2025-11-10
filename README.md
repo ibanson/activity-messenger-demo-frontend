@@ -51,10 +51,13 @@ activity-messenger/
 ├─ pg-data/                           # Volume local persistant pour PostgreSQL (non versionné)
 │
 └─ .gitignore                         # Ignore volumes, certificats, builds, etc.
+```
 
 ## Project setup
 
 ### 1. Cloner le dépôt
 
+```bash
 git clone https://github.com/ibanson/activity-messenger-demo-frontend.git
 cd activity-messenger-demo-frontend
+```
