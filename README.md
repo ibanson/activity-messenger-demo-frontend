@@ -56,6 +56,5 @@ activity-messenger/
 
 ### 1. Cloner le dépôt
 
-```bash
 git clone https://github.com/ibanson/activity-messenger-demo-frontend.git
 cd activity-messenger-demo-frontend
