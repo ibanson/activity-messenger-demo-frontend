@@ -74,7 +74,7 @@ pnpm install
 pnpm run serve
 ```
 
-### Le projet sera accessible à l’adresse
+## Le projet sera accessible à l’adresse
 
 ```bash
 http://localhost:8080
