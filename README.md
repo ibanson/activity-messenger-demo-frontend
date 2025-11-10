@@ -1,4 +1,4 @@
-# Activity Messenger – Demo Frontend
+# Task manager - Demo Frontend
 
 [![Vue.js](https://img.shields.io/badge/Vue.js-2.x-42b883?logo=vuedotjs&logoColor=white&style=for-the-badge)](https://vuejs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4.3-38B2AC?logo=tailwindcss&logoColor=white&style=for-the-badge)](https://tailwindcss.com/)
